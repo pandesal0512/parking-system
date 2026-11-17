@@ -1,0 +1,425 @@
+/* ------------------------------------------------------------------
+   Mabini Colleges Parking: front-end styles
+   Visual language: parking signs and painted bays.
+   Sign blue is the action colour. Caution yellow is used ONLY for
+   "you must do something first" notices. Flat colours, no gradients.
+   ------------------------------------------------------------------ */
+
+:root {
+    --asphalt: #22272c;
+    --paint: #f4f6f7;          /* page background */
+    --surface: #ffffff;
+    --ink: #1c2126;
+    --ink-soft: #56606a;
+    --line: #d5dade;
+    --sign: #1d4ea0;           /* action / links */
+    --sign-hover: #163c7c;
+    --on-sign: #ffffff;
+    --caution: #f2b705;
+    --caution-bg: #fff6d6;
+    --go: #1e7a4c;
+    --stop: #b3261e;
+    --stop-bg: #fdecea;
+    --info-bg: #e8eefb;
+    --focus: #1d4ea0;
+
+    --font-display: Bahnschrift, "Roboto Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+    --font-body: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --paint: #14181b;
+        --surface: #1c2227;
+        --ink: #e8ecef;
+        --ink-soft: #9aa5ae;
+        --line: #333c43;
+        --sign: #6a9bf0;
+        --sign-hover: #8bb2f5;
+        --on-sign: #0f1720;
+        --caution-bg: #3a3210;
+        --stop: #ff8a80;
+        --stop-bg: #3a1d1b;
+        --info-bg: #1d2a42;
+        --go: #5fcf97;
+        --focus: #8bb2f5;
+    }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    background: var(--paint);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0;
+}
+h1 { font-size: 2rem; }
+h2 { font-size: 1.25rem; }
+p { margin: 0; }
+
+:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+}
+
+/* The parking sign: blue square, white inner border, white P */
+.sign {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    background: #1d4ea0;
+    color: #fff;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 2px #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--sign);
+    color: var(--on-sign);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.12s;
+}
+.btn:hover { background: var(--sign-hover); }
+.btn:disabled { opacity: 0.6; cursor: progress; }
+
+.link-button {
+    border: 0;
+    background: none;
+    padding: 0.25rem 0;
+    color: var(--sign);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.link-button:hover { color: var(--sign-hover); }
+
+/* ---------- Forms ---------- */
+.field { display: grid; gap: 0.25rem; margin-bottom: 1rem; }
+.field label { font-weight: 600; }
+.field .hint { color: var(--ink-soft); font-size: 0.875rem; }
+.field .field-error { color: var(--stop); font-size: 0.875rem; font-weight: 600; min-height: 0; }
+.field .field-error:empty { display: none; }
+
+input, select {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+}
+input:hover, select:hover { border-color: var(--ink-soft); }
+input[aria-invalid="true"] { border-color: var(--stop); }
+
+/* ---------- Notices ---------- */
+.notice {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--info-bg);
+    margin-bottom: 1.25rem;
+}
+.notice.caution { background: var(--caution-bg); border-color: var(--caution); }
+.notice.error { background: var(--stop-bg); border-color: var(--stop); color: var(--ink); }
+.form-error { margin-bottom: 1rem; }
+
+/* ================= Login / register page ================= */
+.auth {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(280px, 5fr) minmax(320px, 6fr);
+}
+
+.auth-brand {
+    position: relative;
+    overflow: hidden;
+    background: var(--asphalt);
+    color: #f4f6f7;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.auth-brand .sign { width: 3.5rem; height: 3.5rem; font-size: 2.25rem; border-radius: 6px; }
+.auth-brand h1 { font-size: 2.75rem; max-width: 12ch; }
+.auth-brand p { max-width: 30ch; color: #c5ccd2; }
+.brand-copy { position: relative; z-index: 1; display: grid; gap: 1.25rem; }
+
+/* Painted bay lines along the bottom of the panel */
+.bays {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 42%;
+    --bay: 96px;
+    background:
+        linear-gradient(#f4f6f7, #f4f6f7) left 0 top 0 / 100% 5px no-repeat,
+        repeating-linear-gradient(90deg,
+            transparent 0 calc(var(--bay) - 5px),
+            #f4f6f7 calc(var(--bay) - 5px) var(--bay));
+    opacity: 0.9;
+}
+
+.auth-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 2.5rem;
+    max-width: 30rem;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 1.5rem;
+}
+.switch button {
+    border: 0;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    background: none;
+    padding: 0.75rem 0;
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+}
+.switch button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--sign); }
+.switch button:hover { color: var(--ink); }
+
+.auth-panel .btn { width: 100%; margin-top: 0.5rem; }
+
+@media (max-width: 760px) {
+    .auth { grid-template-columns: 1fr; }
+    .auth-brand { padding: 1.5rem 1.25rem 4.5rem; flex-direction: row; align-items: center; }
+    .auth-brand .brand-copy { grid-template-columns: auto 1fr; align-items: center; gap: 0.75rem 1rem; }
+    .auth-brand .sign { width: 2.5rem; height: 2.5rem; font-size: 1.6rem; }
+    .auth-brand h1 { font-size: 1.5rem; max-width: none; }
+    .auth-brand p { grid-column: 1 / -1; max-width: none; }
+    .bays { height: 2.75rem; --bay: 64px; }
+    .auth-panel { padding: 1.5rem 1.25rem 2.5rem; }
+}
+
+/* ================= App shell ================= */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--asphalt);
+    color: #f4f6f7;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: inherit;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+}
+.who { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar .link-button { color: #f4f6f7; }
+.topbar .link-button:hover { color: #fff; }
+.topbar :focus-visible { outline-color: #fff; }
+
+.shell {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    gap: 2.5rem;
+}
+
+#nav { min-width: 0; }
+#nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+#nav a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    color: var(--ink);
+    text-decoration: none;
+}
+#nav a:hover { background: var(--info-bg); }
+#nav a[aria-current="page"] { background: var(--info-bg); font-weight: 700; }
+
+#content { max-width: 36rem; outline: none; }
+#content > h1 { margin-bottom: 1.5rem; }
+#content form { margin-top: 0.5rem; }
+#content form .btn { margin-top: 0.5rem; }
+
+/* Profile facts: a ruled list, because it is a record, not a set of cards */
+.facts { margin: 0; border-top: 1px solid var(--line); }
+.facts > div {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+}
+.facts dt { color: var(--ink-soft); }
+.facts dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.facts dd.muted { color: var(--ink-soft); font-weight: 400; }
+
+/* Status text always has a word as well as a colour */
+.status::before {
+    content: "";
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+    background: var(--go);
+}
+.status.bad { color: var(--stop); }
+.status.bad::before { background: var(--stop); }
+
+@media (max-width: 760px) {
+    .topbar { padding: 0.625rem 1rem; }
+    .brand span:last-child { display: none; }
+    /* minmax(0, 1fr) lets the column shrink; otherwise a long menu stretches the whole page */
+    .shell { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 1rem 1rem 3rem; }
+    #nav ul { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); gap: 0; }
+    #nav a { border-radius: 0; white-space: nowrap; border-bottom: 3px solid transparent; }
+    #nav a[aria-current="page"] { background: none; border-bottom-color: var(--sign); }
+    .facts > div { grid-template-columns: 1fr; gap: 0.125rem; }
+    h1 { font-size: 1.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+}
+
+/* ================= Pages: tables, badges, meters, gate ================= */
+#content.wide { max-width: 60rem; }
+
+h2.section { margin: 2.25rem 0 0.75rem; }
+h2.section.first { margin-top: 0; }
+.intro { margin-bottom: 1.25rem; }
+.soft { color: var(--ink-soft); }
+.hint-block { color: var(--ink-soft); font-size: 0.875rem; margin-bottom: 0.5rem; }
+.updated { margin-top: 1.5rem; font-size: 0.875rem; }
+.empty { color: var(--ink-soft); padding: 0.75rem 0; }
+
+#content a { color: var(--sign); font-weight: 600; text-underline-offset: 3px; }
+#content a:hover { color: var(--sign-hover); }
+
+/* Filters above a table */
+.toolbar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; margin-bottom: 1rem; }
+.toolbar .field { margin-bottom: 0; min-width: 11rem; }
+
+/* Tables scroll sideways on small screens instead of breaking the page */
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+th, td { text-align: left; padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--ink-soft); font-weight: 600; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+
+/* Status pills always contain a word */
+.badge {
+    display: inline-block;
+    padding: 0.0625rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.badge.good { color: var(--go); border-color: var(--go); }
+.badge.bad { color: var(--stop); border-color: var(--stop); }
+.badge.wait { background: var(--caution-bg); border-color: var(--caution); color: var(--ink); }
+
+/* Buttons */
+.btn.small { min-height: 2rem; padding: 0 0.75rem; font-size: 0.875rem; }
+.btn.quiet { background: transparent; color: var(--sign); border: 1px solid var(--sign); }
+.btn.quiet:hover { background: var(--info-bg); }
+.btn.danger { background: var(--stop); color: var(--on-sign); }
+.btn.danger:hover { filter: brightness(0.92); }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+#content form .actions .btn { margin-top: 0; }
+
+/* Availability line on the reserve form */
+.availability { min-height: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--go); }
+.availability.bad { color: var(--stop); }
+
+/* Parking meter: a strip of bays, one per 10% of capacity */
+.bay-row { margin-bottom: 1.5rem; }
+.bay-head { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.375rem; }
+.meter { position: relative; height: 1.125rem; background: var(--line); border-radius: 3px; overflow: hidden; }
+.meter-fill { height: 100%; background: var(--sign); }
+.meter.busy .meter-fill { background: var(--caution); }
+.meter.full .meter-fill { background: var(--stop); }
+.meter::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), var(--paint) calc(10% - 2px) 10%);
+}
+.bay-row p { margin-top: 0.375rem; }
+
+/* Gate result: a big, plain answer */
+.result {
+    margin: 1.25rem 0 0;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+.result h2 { font-size: 1.75rem; margin-bottom: 0.25rem; }
+.result.allow { border-color: var(--go); }
+.result.allow h2 { color: var(--go); }
+.result.deny { border-color: var(--stop); }
+.result.deny h2 { color: var(--stop); }
+
+/* Capacity editor */
+.capacity-form { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; margin-bottom: 1rem; }
+.capacity-form .form-error { flex-basis: 100%; margin-bottom: 0; }
+.capacity-form .field { margin-bottom: 0; width: 14rem; }
+.capacity-form .saved { color: var(--go); font-weight: 600; }
+.nowrap { white-space: nowrap; }
