@@ -1,0 +1,22 @@
+# Build output
+target/
+build/
+*.log
+
+# IDE files (each person's IDE settings stay on their own machine)
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+nbproject/
+
+# Local secrets and machine-specific config (NEVER commit these)
+src/main/resources/application-local.properties
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

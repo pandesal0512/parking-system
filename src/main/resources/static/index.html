@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in - Mabini Colleges Parking</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/shared.js"></script>
+</head>
+<body>
+<div class="auth">
+
+    <header class="auth-brand">
+        <span class="sign" aria-hidden="true">P</span>
+        <h1>Mabini Colleges Parking</h1>
+        <p>Sign in to manage your vehicle and parking reservations.</p>
+    </header>
+
+    <main class="auth-panel">
+        <div class="switch" role="group" aria-label="Sign in or create an account">
+            <button type="button" id="show-login" aria-pressed="true">Sign in</button>
+            <button type="button" id="show-register" aria-pressed="false">Create account</button>
+        </div>
+
+        <div id="notice" class="notice" role="status" hidden></div>
+
+        <!-- Sign in -->
+        <form id="login-form" novalidate>
+            <div id="login-error" class="notice error form-error" role="alert" hidden></div>
+
+            <div class="field">
+                <label for="login-username">Username</label>
+                <input id="login-username" name="username" autocomplete="username" autocapitalize="none" required>
+            </div>
+            <div class="field">
+                <label for="login-password">Password</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn">Sign in</button>
+        </form>
+
+        <!-- Create account -->
+        <form id="register-form" novalidate hidden>
+            <div id="register-error" class="notice error form-error" role="alert" hidden></div>
+
+            <div class="field">
+                <label for="reg-fullName">Full name</label>
+                <input id="reg-fullName" name="fullName" autocomplete="name" required>
+                <span class="field-error" data-error-for="fullName"></span>
+            </div>
+            <div class="field">
+                <label for="reg-username">Username</label>
+                <input id="reg-username" name="username" autocomplete="username" autocapitalize="none" required>
+                <span class="hint">4 to 30 characters: letters, numbers, dot, underscore or dash.</span>
+                <span class="field-error" data-error-for="username"></span>
+            </div>
+            <div class="field">
+                <label for="reg-userType">I am a</label>
+                <select id="reg-userType" name="userType" required>
+                    <option value="">Choose one</option>
+                    <option value="STUDENT">Student</option>
+                    <option value="FACULTY">Faculty member</option>
+                    <option value="PERSONNEL">Personnel</option>
+                </select>
+                <span class="field-error" data-error-for="userType"></span>
+            </div>
+            <div class="field">
+                <label for="reg-schoolId">School ID (optional)</label>
+                <input id="reg-schoolId" name="schoolId" autocomplete="off">
+                <span class="field-error" data-error-for="schoolId"></span>
+            </div>
+            <div class="field">
+                <label for="reg-password">Password</label>
+                <input id="reg-password" name="password" type="password" autocomplete="new-password" required>
+                <span class="hint">At least 8 characters.</span>
+                <span class="field-error" data-error-for="password"></span>
+            </div>
+            <div class="field">
+                <label for="reg-confirm">Confirm password</label>
+                <input id="reg-confirm" name="confirm" type="password" autocomplete="new-password" required>
+                <span class="field-error" data-error-for="confirm"></span>
+            </div>
+            <button type="submit" class="btn">Create account</button>
+        </form>
+    </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
