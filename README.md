@@ -67,9 +67,7 @@ Most of these are in `application.properties` and can be changed there.
 | Longest reservation | 10 hours (`app.reservation.max-hours`) |
 | How far ahead | 7 days (`app.reservation.max-days-ahead`) |
 | Early entry | 15 minutes before the start (`app.reservation.grace-minutes`) |
-| Cancelling | up to 60 minutes before the start (`app.reservation.cancel-cutoff-minutes`); after that only a manager can |
-| Approval of reservations | off, they are approved immediately (`app.reservation.auto-approve=true`) |
-| Approval of vehicles | on, a manager approves each new vehicle (`VEHICLE_AUTO_APPROVE=true` turns it off) |
+| Cancelling | up to 60 minutes before the start (`app.reservation.cancel-cutoff-minutes`); after that only a manager can || Approval of vehicles | on, a manager approves each new vehicle (`VEHICLE_AUTO_APPROVE=true` turns it off) |
 | Space check | a reservation is allowed when the busiest moment in its window is below capacity, so bookings in different hours do not block each other |
 | No-show | the reservation ends and the vehicle never entered: 1 warning (students only) |
 | Too many no-shows | at 3 warnings the user can no longer reserve (`app.penalty.no-show-ban-threshold`) |

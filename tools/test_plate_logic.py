@@ -2,7 +2,7 @@
 import unittest
 
 from plate_gate import Lane, handle_frame
-from plate_logic import Debouncer, EspLink, clean, pick_plate
+from plate_logic import Debouncer, EspLink, clean, parse_camera, pick_plate
 
 
 def box(x):
@@ -94,6 +94,21 @@ class EspLinkTest(unittest.TestCase):
         silent = EspLink(FakeSerial([]), wait_seconds=10, clock=tick).check(Lane("IN", "IN", "x", 0), "ABC1234")
         self.assertFalse(silent["allowed"])
         self.assertIn("did not answer", silent["message"])
+
+
+class ParseCamera(unittest.TestCase):
+    def test_numbers(self):
+        self.assertEqual(parse_camera("0"), 0)
+        self.assertEqual(parse_camera("1"), 1)
+        self.assertEqual(parse_camera("-1"), -1)
+
+    def test_phone_address_is_kept_as_text(self):
+        self.assertEqual(parse_camera("http://192.168.1.23:8080/video"), "http://192.168.1.23:8080/video")
+        self.assertEqual(parse_camera("  rtsp://10.0.0.5:554/live  "), "rtsp://10.0.0.5:554/live")
+
+    def test_garbage_is_refused(self):
+        with self.assertRaises(ValueError):
+            parse_camera("front door")
 
 
 if __name__ == "__main__":

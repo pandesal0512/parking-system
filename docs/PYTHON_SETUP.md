@@ -129,6 +129,7 @@ The `UserWarning` about `torch.quantize_per_tensor` is harmless. It is a depreca
 
 - **Laptop camera and a USB camera:** the laptop camera is usually 0 and the USB camera 1. Run `python tools/plate_gate.py --list-cameras` to see which numbers work. If they are the wrong way round, run it with `--in-cam 1 --out-cam 0`.
 - **Only the laptop camera:** run `python tools/plate_gate.py --out-cam -1`, or just run it normally: if camera 1 is not found, the script carries on with the one that works. With one camera, press **I** in the window to switch it between IN and OUT.
+- **A phone as the second camera:** give the phone app's video address instead of a number, for example `--out-cam http://192.168.1.23:8080/video`. The phone and the laptop must be on the same Wi-Fi. See `GATE_SETUP.md`, "Using a phone as one of the cameras".
 
 ## Using the ESP32
 

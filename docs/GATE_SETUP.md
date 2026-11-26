@@ -89,6 +89,21 @@ C:\Users\Asus\pyenv\camera\Scripts\python.exe -m pip install pyserial
 
 Cameras: camera 0 is the entrance (IN) and camera 1 is the exit (OUT). To check which camera number is which, run the script with `--list-cameras`. To swap them, add `--in-cam 1 --out-cam 0`.
 
+### Using a phone as one of the cameras
+
+The laptop has only one camera, so a phone can be the second one. Use a free phone app that streams the camera over Wi-Fi (for example **IP Webcam** on Android, or **DroidCam** on Android and iPhone):
+
+1. Put the phone and the laptop on the same Wi-Fi. A phone hotspot works if the laptop is connected to it.
+2. Open the app, press **Start server** (or the equivalent), and note the address it shows. It looks like `http://192.168.1.23:8080/video`. Use the address exactly as the app shows it, including `/video` at the end.
+3. Give that address to the script in place of the camera number, for example:
+   `python tools/plate_gate.py --in-cam 0 --out-cam http://192.168.1.23:8080/video`
+   This puts the laptop camera at the entrance and the phone at the exit. Swap them if you like.
+4. Mount the phone on a stand, aim it at the lane the same way as a webcam, and keep it charging. Turn off the phone's auto-lock so the app keeps running.
+
+If the phone's address does not open, check that the app is still running on the phone, that both devices are on the same Wi-Fi, and that a firewall is not blocking the port. If the phone drops out while the script is running, stop the script (Q) and start it again. The camera list (`--list-cameras`) shows only camera numbers, not phones.
+
+If you prefer, a phone app with a **USB webcam** mode (DroidCam, Iriun) can be plugged in with a cable and then appears as a normal camera number, so the default `--in-cam 0 --out-cam 1` works without any address.
+
 ## Part 8: The exit
 
 The camera decides the direction. A plate seen by the IN camera is sent as an entry, and one seen by the OUT camera as an exit. The ESP32 handles both the same way.

@@ -18,6 +18,19 @@ def clean(text):
     return re.sub(r"[^A-Z0-9]", "", text.upper())
 
 
+def parse_camera(text):
+    """
+    A camera given on the command line:
+      '0'                              -> 0      (a USB or laptop camera number)
+      '-1'                             -> -1     (no camera)
+      'http://192.168.1.23:8080/video' -> the same text (a phone streaming its camera over Wi-Fi)
+    """
+    text = text.strip()
+    if "://" in text:
+        return text
+    return int(text)
+
+
 def pick_plate(results, min_confidence=MIN_CONFIDENCE):
     """
     results: what easyocr's readtext() returns, a list of (box, text, confidence).

@@ -11,6 +11,8 @@ Run (the backend must be running):
     python tools/plate_gate.py --out-cam -1         only one camera: press I to switch it between IN and OUT
     python tools/plate_gate.py --esp32 COM5         send the plates to the ESP32 over USB (it asks the backend and moves the barrier)
     python tools/plate_gate.py --list-cameras       shows which camera numbers work (to tell the laptop cam from the USB cam)
+    python tools/plate_gate.py --in-cam http://192.168.1.23:8080/video --out-cam 0
+                                                    a phone as the IN camera (its video address, see docs/GATE_SETUP.md)
 
 The key must equal DEVICE_API_KEY on the backend. Put it in the DEVICE_API_KEY environment variable
 (IntelliJ: Run configuration > Environment variables), or the script asks for it when it starts.
@@ -26,7 +28,7 @@ import urllib.request
 
 import cv2
 
-from plate_logic import Debouncer, EspLink, pick_plate
+from plate_logic import Debouncer, EspLink, parse_camera, pick_plate
 
 GREEN, RED, WHITE, YELLOW = (0, 255, 0), (0, 0, 255), (255, 255, 255), (255, 255, 0)
 
@@ -120,8 +122,13 @@ def draw(image, lane, single=False):
         y += 40
 
 
-def open_camera(index):
-    cam = cv2.VideoCapture(index, cv2.CAP_DSHOW)
+def open_camera(source):
+    """source is a camera number (USB or laptop camera) or a video address (a phone on the Wi-Fi)."""
+    if isinstance(source, str):
+        cam = cv2.VideoCapture(source)          # a network stream: the phone sends its own picture size
+        cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)     # keep only the newest picture, so the reader is not behind
+        return cam if cam.isOpened() else None
+    cam = cv2.VideoCapture(source, cv2.CAP_DSHOW)
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     return cam if cam.isOpened() else None
@@ -130,8 +137,10 @@ def open_camera(index):
 def main():
     parser = argparse.ArgumentParser(description="Two-camera automatic gate reader")
     parser.add_argument("--backend", default=os.environ.get("PARKING_BACKEND", "http://localhost:8080"))
-    parser.add_argument("--in-cam", type=int, default=0, help="camera number for the entrance (-1 = none)")
-    parser.add_argument("--out-cam", type=int, default=1, help="camera number for the exit (-1 = none)")
+    parser.add_argument("--in-cam", type=parse_camera, default=0,
+                        help="camera for the entrance: a number, or a phone's video address like http://IP:8080/video (-1 = none)")
+    parser.add_argument("--out-cam", type=parse_camera, default=1,
+                        help="camera for the exit: a number, or a phone's video address (-1 = none)")
     parser.add_argument("--esp32", metavar="PORT", help="USB port of the ESP32 (for example COM5). The ESP32 then asks the "
                                                         "backend, opens the barrier and sends the heartbeat. Without this the script asks the backend itself.")
     parser.add_argument("--list-cameras", action="store_true", help="show which camera numbers can be opened, then exit")
@@ -144,7 +153,7 @@ def main():
             if cam:
                 cam.release()
         print("Usually 0 is the laptop camera and 1 is the USB camera. If they are the wrong way round, "
-              "use --in-cam 1 --out-cam 0.")
+              "use --in-cam 1 --out-cam 0. A phone is not in this list: give its address to --in-cam or --out-cam.")
         return
 
     key = ""
@@ -158,11 +167,12 @@ def main():
     wanted = [Lane("IN", "IN", "gate-entry", args.in_cam), Lane("OUT", "OUT", "gate-exit", args.out_cam)]
     cams, lanes = {}, []
     for lane in wanted:
-        if lane.camera_index < 0:
+        if lane.camera_index == -1:
             continue
         cam = open_camera(lane.camera_index)
         if cam is None:
-            print(f"{lane.name} camera (number {lane.camera_index}) not found. Close other apps that use it. Skipping it.")
+            print(f"{lane.name} camera ({lane.camera_index}) not found. Close other apps that use it, "
+                  "and for a phone check that the app is running and on the same Wi-Fi. Skipping it.")
             continue
         cams[lane.name] = cam
         lanes.append(lane)
@@ -199,8 +209,10 @@ def main():
             stop.set()
         if key_pressed == ord("i") and len(lanes) == 1:     # one camera must serve both directions
             lane = lanes[0]
+            old_name = lane.name
             lane.direction = "OUT" if lane.direction == "IN" else "IN"
             lane.name = lane.direction
+            cams[lane.name] = cams.pop(old_name)     # the camera must be found under its new name too
             lane.device_id = "gate-entry" if lane.direction == "IN" else "gate-exit"
             lane.decision, lane.decision_color = "Waiting for a plate...", WHITE
 
