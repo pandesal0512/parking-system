@@ -10,5 +10,5 @@ set DEVICE_API_KEY=GateKey2026Mabini
 set PARKING_BACKEND=http://localhost:8080
 
 cd /d "%~dp0"
-python "%~dp0..\tools\plate_gate.py" --in-cam 0 --out-cam 1
+"C:\Users\Asus\pyenv\camera\Scripts\python.exe" "%~dp0..\tools\plate_gate.py" --in-cam 0 --out-cam -1
 pause
