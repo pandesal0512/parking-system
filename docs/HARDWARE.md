@@ -79,6 +79,10 @@ Answer (HTTP 200 whether allowed or refused):
   `OVERSTAY` (it stayed late, the penalty is applied) or `NO_ENTRY_RECORD` (the vehicle was never recorded
   inside). Open the barrier for both.
 
+### GET /api/device/allowed-plates : who may enter right now
+
+Returns `{"generatedAt": "...", "plates": ["ABC1234", ...]}`: the plates the gate would let in at this moment (approved vehicle, active owner, not suspended, not already inside, reservation valid now). Used by `tools/plate_sync.py` to keep a board's list current. Needs the `X-Device-Key` header.
+
 ### POST /api/device/heartbeat : "I am alive"
 
 ```json

@@ -87,22 +87,7 @@ C:\Users\Asus\pyenv\camera\Scripts\python.exe -m pip install pyserial
 4. Hold a registered plate with an active reservation in front of the camera. After two matching reads you see OPEN BARRIER, the green LED lights and the barrier lifts.
 5. Press Q in a camera window to stop.
 
-Cameras: camera 0 is the entrance (IN) and camera 1 is the exit (OUT). To check which camera number is which, run the script with `--list-cameras`. To swap them, add `--in-cam 1 --out-cam 0`.
-
-### Using a phone as one of the cameras
-
-The laptop has only one camera, so a phone can be the second one. Use a free phone app that streams the camera over Wi-Fi (for example **IP Webcam** on Android, or **DroidCam** on Android and iPhone):
-
-1. Put the phone and the laptop on the same Wi-Fi. A phone hotspot works if the laptop is connected to it.
-2. Open the app, press **Start server** (or the equivalent), and note the address it shows. It looks like `http://192.168.1.23:8080/video`. Use the address exactly as the app shows it, including `/video` at the end.
-3. Give that address to the script in place of the camera number, for example:
-   `python tools/plate_gate.py --in-cam 0 --out-cam http://192.168.1.23:8080/video`
-   This puts the laptop camera at the entrance and the phone at the exit. Swap them if you like.
-4. Mount the phone on a stand, aim it at the lane the same way as a webcam, and keep it charging. Turn off the phone's auto-lock so the app keeps running.
-
-If the phone's address does not open, check that the app is still running on the phone, that both devices are on the same Wi-Fi, and that a firewall is not blocking the port. If the phone drops out while the script is running, stop the script (Q) and start it again. The camera list (`--list-cameras`) shows only camera numbers, not phones.
-
-If you prefer, a phone app with a **USB webcam** mode (DroidCam, Iriun) can be plugged in with a cable and then appears as a normal camera number, so the default `--in-cam 0 --out-cam 1` works without any address.
+Cameras: camera 0 is the entrance (IN) and camera 1 is the exit (OUT). A phone can be a camera too (see "Using a phone as a camera" below). To check which camera number is which, run the script with `--list-cameras`. To swap them, add `--in-cam 1 --out-cam 0`.
 
 ## Part 8: The exit
 
@@ -122,6 +107,35 @@ Only one laptop runs the backend (call it A). The other (B) is just a second cam
   and set the same `DEVICE_API_KEY` environment variable on B (or the script asks for it).
 
 Exits from B are recorded and shown on B's screen, and appear on the Gate page as the device `gate-exit`. The barrier only lifts for entries, because the ESP32 is plugged into A.
+
+## Using a phone as a camera
+
+A phone can be the exit camera (or the entrance one). Two ways, both need the phone and the laptop on the same Wi-Fi.
+
+**A. A webcam app (easiest).** Install a phone-as-webcam app such as Iriun Webcam or DroidCam on the phone and its small program on the laptop, then connect them. The phone then shows up as one more camera number. Run `python tools/plate_gate.py --list-cameras`. The new number is the phone, for example `2`. Use it like any camera: `--out-cam 2`. On Windows 11 with an Android phone, "Link to Windows" can also make the phone appear as a camera.
+
+**B. A stream address (an IP camera app).** Install an app such as "IP Webcam" (Android) and start its server. It shows an address on the phone screen, for example `http://192.168.1.30:8080`. Use the video address of it:
+
+```
+--out-cam http://192.168.1.30:8080/video
+```
+
+Open that address in the laptop's browser first. If you see the video there, the script can read it too.
+
+Tips: put the phone in a stand, turn the screen timeout off, keep it charging, and give it good light with the plate straight in front of it. A phone camera is usually sharper than a laptop webcam, which helps the plate reading. Network cameras can lag a little. If the picture seems seconds old, move the phone closer to the router.
+
+## Option: the board decides from a list of allowed plates
+
+Instead of the board asking the backend for every plate, the laptop gives the board the list of plates that may enter right now (approved vehicle, active owner, not suspended, not already inside, reservation valid now). The board opens the barrier by itself when a plate on the list is read. This needs no Wi-Fi on the board, so it also works on an Arduino Uno or Nano.
+
+1. Backend running with `DEVICE_API_KEY` set (Parts 1 and 2).
+2. Open `esp32/gate_allowlist/gate_allowlist.ino`, set the pins at the top, choose your board and port, upload. (On an ESP32 install `ESP32Servo`; on an Uno the built-in `Servo` library is enough.)
+3. Close the Serial Monitor. Run the reader with the list option:
+   `--esp32 COM5 --allowlist` and set the `DEVICE_API_KEY` environment variable on the laptop (or the script asks).
+4. The laptop refreshes the list every 5 seconds. The board keeps up to 20 plates. If the laptop stops updating for 60 seconds the board forgets the list and refuses entries. Exits are always allowed.
+5. Every plate is also reported to the backend, so the Gate page log still shows entries, exits and refusals. If the board opened but the backend would have refused (for example the list was a few seconds old), the script prints a WARNING.
+
+To see the list without a board: `python tools/plate_sync.py --show`.
 
 ## Without any hardware
 

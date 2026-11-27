@@ -2,7 +2,7 @@
 import unittest
 
 from plate_gate import Lane, handle_frame
-from plate_logic import Debouncer, EspLink, clean, parse_camera, pick_plate
+from plate_logic import Debouncer, EspLink, clean, list_lines, is_camera_off, parse_camera, pick_plate
 
 
 def box(x):
@@ -96,19 +96,27 @@ class EspLinkTest(unittest.TestCase):
         self.assertIn("did not answer", silent["message"])
 
 
-class ParseCamera(unittest.TestCase):
-    def test_numbers(self):
-        self.assertEqual(parse_camera("0"), 0)
+class CameraArgTest(unittest.TestCase):
+    def test_numbers_and_addresses(self):
         self.assertEqual(parse_camera("1"), 1)
-        self.assertEqual(parse_camera("-1"), -1)
-
-    def test_phone_address_is_kept_as_text(self):
-        self.assertEqual(parse_camera("http://192.168.1.23:8080/video"), "http://192.168.1.23:8080/video")
-        self.assertEqual(parse_camera("  rtsp://10.0.0.5:554/live  "), "rtsp://10.0.0.5:554/live")
-
-    def test_garbage_is_refused(self):
+        self.assertTrue(is_camera_off(parse_camera("-1")))
+        self.assertEqual(parse_camera("http://192.168.1.30:8080/video"), "http://192.168.1.30:8080/video")
+        self.assertFalse(is_camera_off("http://x/video"))
         with self.assertRaises(ValueError):
-            parse_camera("front door")
+            parse_camera("front")
+
+
+class ListTest(unittest.TestCase):
+    def test_list_lines_are_cleaned_and_capped(self):
+        self.assertEqual(list_lines(["abc-1234", "ABC1234", "XYZ 99"]), ["LIST_BEGIN", "P,ABC1234", "P,XYZ99", "LIST_END"])
+        self.assertEqual(list_lines([]), ["LIST_BEGIN", "LIST_END"])
+        self.assertEqual(len(list_lines(["P%03d" % i for i in range(50)])), 22)    # 20 plates plus begin and end
+        self.assertEqual(list_lines(["TOOLONGPLATE12345"]), ["LIST_BEGIN", "LIST_END"])
+
+    def test_send_list_writes_one_line_per_plate(self):
+        ser = FakeSerial([])
+        EspLink(ser).send_list(["abc1234"], pause=0)
+        self.assertEqual(ser.written, ["LIST_BEGIN\n", "P,ABC1234\n", "LIST_END\n"])
 
 
 if __name__ == "__main__":

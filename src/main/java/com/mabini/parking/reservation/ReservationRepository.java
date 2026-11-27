@@ -34,6 +34,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
      * Reservations a vehicle may use to enter right now: it must not have ended, and it must
      * start no later than "latestStart" (now plus the early-entry grace period).
      */
+    /** Every reservation that could let its vehicle in right now (same time rule as findUsable), vehicle and owner included. */
+    @Query("select r from Reservation r join fetch r.vehicle v join fetch v.owner where r.status = :status "
+            + "and r.startTime <= :latestStart and r.endTime > :now order by r.startTime")
+    List<Reservation> findAllUsableNow(@Param("status") ReservationStatus status,
+                                       @Param("latestStart") LocalDateTime latestStart,
+                                       @Param("now") LocalDateTime now);
+
     @Query("select r from Reservation r where r.vehicle.id = :vehicleId and r.status = :status "
             + "and r.startTime <= :latestStart and r.endTime > :now order by r.startTime")
     List<Reservation> findUsable(@Param("vehicleId") Long vehicleId,

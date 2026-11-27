@@ -33,7 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The gate decision. Today a staff member triggers it from the gate simulator; a camera device
@@ -135,6 +138,28 @@ public class GateService {
         return new GateResult(true, null,
                 "Entry recorded. The reservation ends " + reservation.getEndTime().format(FRIENDLY) + ".",
                 Direction.IN, identifier, ownerName, type);
+    }
+
+    /**
+     * The plates the gate would let in RIGHT NOW: the vehicle is approved, the owner is active and not suspended,
+     * the vehicle is not already inside, and it has a reservation that is valid at this moment. It applies the same
+     * checks as enter(), without recording anything, so a gate controller can keep a copy of the list.
+     */
+    @Transactional(readOnly = true)
+    public List<String> allowedPlatesNow() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        int grace = props.reservation().graceMinutes();
+        Set<String> plates = new TreeSet<>();
+        for (Reservation r : reservations.findAllUsableNow(ReservationStatus.ACTIVE, now.plusMinutes(grace), now)) {
+            Vehicle vehicle = r.getVehicle();
+            User owner = vehicle.getOwner();
+            boolean suspended = owner.getSuspendedUntil() != null && owner.getSuspendedUntil().isAfter(now);
+            if (vehicle.getStatus() == VehicleStatus.APPROVED && owner.isActive() && !suspended
+                    && !logs.existsByVehicleIdAndExitTimeIsNull(vehicle.getId())) {
+                plates.add(vehicle.getIdentifier());
+            }
+        }
+        return new ArrayList<>(plates);
     }
 
     private GateResult leave(String identifier, LocalDateTime now) {

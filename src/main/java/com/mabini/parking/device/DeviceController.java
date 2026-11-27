@@ -8,6 +8,7 @@ import com.mabini.parking.gate.dto.GateRequest;
 import com.mabini.parking.gate.dto.GateResult;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Endpoints for the gate hardware (ESP32). Every call needs the header "X-Device-Key: <secret>"
@@ -29,6 +31,9 @@ import java.time.LocalDateTime;
 public class DeviceController {
 
     public record HeartbeatResponse(boolean ok, LocalDateTime serverTime) {
+    }
+
+    public record AllowedPlates(LocalDateTime generatedAt, List<String> plates) {
     }
 
     private final GateService gateService;
@@ -50,6 +55,16 @@ public class DeviceController {
         registry.touch(request.deviceId());
         // No staff member is involved, so "recorded by" stays empty: that is how hardware entries are told apart.
         return gateService.verify(null, new GateRequest(request.identifier(), request.direction()));
+    }
+
+    /**
+     * The plates the gate would let in right now (approved vehicle, active owner, not suspended, not already inside,
+     * valid reservation). A gate controller can keep this list and open the barrier by itself when a plate is on it.
+     * Read-only: nothing is recorded. The list changes over time, so fetch it again every few seconds.
+     */
+    @GetMapping("/allowed-plates")
+    public AllowedPlates allowedPlates() {
+        return new AllowedPlates(LocalDateTime.now(clock), gateService.allowedPlatesNow());
     }
 
     /** "I am alive." Send this every 10 seconds or so. */
